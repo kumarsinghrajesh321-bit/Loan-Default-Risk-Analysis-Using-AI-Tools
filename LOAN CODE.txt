@@ -1,0 +1,95 @@
+IMPORTING OF DATA.
+
+from google.colab import files
+uploaded = files.upload()
+
+import pandas as pd
+
+df = pd.read_csv("Loan_default.csv")
+df.head(10)
+
+PERFORMING EXPLORATORY DATA ANALYSIS.
+
+print(df.shape)         
+print(df.columns)
+df.info()
+
+print(df.shape)         
+print(df.columns)
+df.info()
+
+PREPROCESSING THE DATA.
+
+from sklearn.preprocessing import LabelEncoder
+
+df_encoded = df.copy()
+label_enc = LabelEncoder()
+for col in ['Education','EmploymentType','MaritalStatus','HasMortgage','HasDependents','LoanPurpose','HasCoSigner']:
+    df_encoded[col] = label_enc.fit_transform(df_encoded[col])
+
+BREAK DATA INTO PRACTICE PART AND TESTING PART.
+
+from sklearn.model_selection import train_test_split
+
+X = df_encoded.drop(columns=['LoanID','Default'])
+y = df_encoded['Default']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+NOW TRAINING A MODEL.
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+model = LogisticRegression(max_iter=5000)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+EVALUTAION OF MODEL.
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
+HIGHLIGHT IMPORTANT RISK AREAS
+
+import numpy as np
+
+importance = model.coef_[0]
+feature_importance = pd.DataFrame({
+    'Feature': X.columns,
+    'Importance': np.abs(importance)
+}).sort_values(by='Importance', ascending=False)
+
+print(feature_importance.head(10))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
